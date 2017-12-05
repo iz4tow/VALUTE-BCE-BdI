@@ -4,12 +4,12 @@ import jpype
 import time
 
 #CONNESSIONE A DB2
-jar = 'db2jcc4.jar' # location of the jdbc driver jar
-args='-Djava.class.path=%s' % jar
-jvm = jpype.getDefaultJVMPath()
-jpype.startJVM(jvm, args)
-conn=jaydebeapi.connect('com.ibm.db2.jcc.DB2Driver', 'jdbc:db2://10.1.12.69:50000/s69mk0se',['db2inst1','db2inst1']) #connessione al db2
-curs=conn.cursor()
+#jar = 'db2jcc4.jar' # location of the jdbc driver jar
+#args='-Djava.class.path=%s' % jar
+#jvm = jpype.getDefaultJVMPath()
+#jpype.startJVM(jvm, args)
+#conn=jaydebeapi.connect('com.ibm.db2.jcc.DB2Driver', 'jdbc:db2://10.1.12.69:50000/s69mk0se',['db2inst1','db2inst1']) #connessione al db2
+#curs=conn.cursor()
 #########FINE DB2
 
 oggi=time.strftime('%Y-%m-%d')#data di oggi
@@ -32,7 +32,7 @@ cambigg=cambigg.replace('"',"")
 file.write(cambigg) 
 
 
-file = open("result.txt","w")
+
 for riga in cambigg.splitlines():#separo lo stringone per righe
 	#print (riga)
 	try:
