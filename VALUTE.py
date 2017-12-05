@@ -39,6 +39,7 @@ def BdI():
 	cambigg=cambigg.replace('b"',"")
 	cambigg=cambigg.replace('"',"")
 	file.write(cambigg) 
+	file.close()
 
 	for riga in cambigg.splitlines():#separo lo stringone per righe
 		#print (riga)
@@ -50,10 +51,6 @@ def BdI():
 			app.setLabelFg("dispBdI", "red")
 			app.setLabel("dispBdI","Cambi non disponibili su Banca d'Italia")
 			break
-		if paese=="Paese":
-			print ("SALTA")
-		else:
-			file.write(paese)
 	########FINE CAMBI BdI
 	app.showButton("Verifica disponibilità")
 	app.showButton("BdI")
@@ -155,7 +152,8 @@ def BCE():
 	if count_twd!=1:
 		app.showLabel("dispTWD") #Errore cambi
 		app.setLabelFg("dispTWD", "red")
-		app.setLabel("dispTWD","Cambio TWD in ERRORE - CONTATTARE FRANCO!!!!")		
+		app.setLabel("dispTWD","Cambio TWD in ERRORE - CONTATTARE FRANCO!!!!")	
+	file.close()
 	app.showButton("Verifica disponibilità")
 	app.showButton("BdI")
 	app.showButton("BCE")

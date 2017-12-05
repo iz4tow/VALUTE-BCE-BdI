@@ -85,4 +85,6 @@ if data_twd==oggi: #CONTROLLO SE ESISTONO CAMBI CON DATA OGGI
 else:
 	print ("CAMBIO TWD NON DISPONIBILE")
 if count_twd!=1:
-	print ("CAMBIO TWD IN ERRORE")		
+	print ("CAMBIO TWD IN ERRORE")	
+
+file.close()	

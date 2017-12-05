@@ -13,6 +13,7 @@ import time
 #########FINE DB2
 
 oggi=time.strftime('%Y-%m-%d')#data di oggi
+oggi="2017-12-04"
 
 
 bdi="bdi.txt"
@@ -41,9 +42,8 @@ for riga in cambigg.splitlines():#separo lo stringone per righe
 		print ("VALUTE NON DISPONIBILI SU BANCA D'ITALIA")
 		errore_bdi=1
 		break
-	if paese=="Paese":
-		print ("SALTA")
-	else:
-		file.write(paese)
-		
-	
+	#if paese=="Paese":
+	#	print ("SALTA")
+	#else:
+	#	file.write(paese)
+file.close()
