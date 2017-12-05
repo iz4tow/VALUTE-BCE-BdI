@@ -59,3 +59,6 @@ if errore_bdi==0:
 		ftp.delete(cambi_file)
 		ftp.rename(bdi,cambi_file)
 	file.close()
+	exit(0)
+else:
+	exit(errore_bdi)

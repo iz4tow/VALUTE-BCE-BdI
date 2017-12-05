@@ -105,3 +105,6 @@ if errore_bce==0:
 		ftp.delete(cambi_file)
 		ftp.rename(bce,cambi_file)
 	file.close()
+	exit(0)
+else:
+	exit(errore_bce)
