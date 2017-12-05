@@ -1,6 +1,7 @@
 import feedparser
 import unidecode
 import time
+from ftplib import FTP
 
 bce="bce.txt"
 cambi=""
@@ -105,6 +106,6 @@ if errore_bce==0:
 		ftp.delete(cambi_file)
 		ftp.rename(bce,cambi_file)
 	file.close()
-	exit(0)
+	sys.exit(0)
 else:
-	exit(errore_bce)
+	sys.exit(errore_bce)
