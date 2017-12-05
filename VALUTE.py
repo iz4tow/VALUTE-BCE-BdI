@@ -6,8 +6,12 @@ import time
 import feedparser
 import unidecode
 #import os 
+from ftplib import FTP
 from appJar import gui
 
+ftp = FTP('10.1.12.2')
+ftp.login("utentes80","utentes80") 
+cambi_file="cambigg.csv"
 
 #CONNESSIONE A DB2
 #jar = 'db2jcc4.jar' # location of the jdbc driver jar
@@ -40,7 +44,8 @@ def BdI():
 	cambigg=cambigg.replace('"',"")
 	file.write(cambigg) 
 	file.close()
-
+	
+	errore_bdi=0
 	for riga in cambigg.splitlines():#separo lo stringone per righe
 		#print (riga)
 		try:
@@ -50,8 +55,14 @@ def BdI():
 			app.showLabel("dispBdI") #Errore cambi
 			app.setLabelFg("dispBdI", "red")
 			app.setLabel("dispBdI","Cambi non disponibili su Banca d'Italia")
+			errore_bdi=1
 			break
 	########FINE CAMBI BdI
+	if errore_bdi==0:
+		file = open(bdi,'rb')
+		ftp.storbinary("STOR "+bdi,file)
+		ftp.rename(bdi,cambi_file)
+		file.close()
 	app.showButton("Verifica disponibilità")
 	app.showButton("BdI")
 	app.showButton("BCE")
@@ -89,12 +100,14 @@ def BCE():
 		
 	file.write("Paese,Valuta,Codice ISO,Codice UIC,Quotazione,Convenzione di cambio, Data di riferimento (CET)\n")
 	countbce=0
+	errore_bce=0
 	for riga in cambi.splitlines(): #separo lo stringone per riga
 		if oggi in riga: #prendo solo le righe con la data di oggi
 			quotazione,iso,inutile1,inutile2,inutile3,data,inutile4,inutile5,inutile6=riga.split(" ")
 			file.write(iso+","+iso+","+iso+","+iso+","+quotazione+","+inutile3+","+data+"\n")
 			countbce=countbce+1
 	if countbce<10:
+		errore_bce=1
 		app.showLabel("dispBCE") #Errore cambi
 		app.setLabelFg("dispBCE", "red")
 		app.setLabel("dispBCE","Cambi non disponibili su Banca Centrale Europea")
@@ -149,11 +162,18 @@ def BCE():
 		app.showLabel("dispTWD") #Errore cambi
 		app.setLabelFg("dispTWD", "red")
 		app.setLabel("dispTWD","Cambio TWD non disponibile")
+		errore_bce=2
 	if count_twd!=1:
 		app.showLabel("dispTWD") #Errore cambi
 		app.setLabelFg("dispTWD", "red")
 		app.setLabel("dispTWD","Cambio TWD in ERRORE - CONTATTARE FRANCO!!!!")	
+		errore_bce=3
 	file.close()
+	if errore_bce==0:
+		file = open(bce,'rb')
+		ftp.storbinary("STOR bce.txt",file)
+		ftp.rename(bdi,cambi_file)
+		file.close()
 	app.showButton("Verifica disponibilità")
 	app.showButton("BdI")
 	app.showButton("BCE")
