@@ -2,7 +2,11 @@ import requests
 import jaydebeapi
 import jpype
 import time
+from ftplib import FTP
 
+ftp = FTP('10.1.12.2')
+ftp.login("utentes80","utentes80") 
+cambi_file="cambigg.csv"
 #CONNESSIONE A DB2
 #jar = 'db2jcc4.jar' # location of the jdbc driver jar
 #args='-Djava.class.path=%s' % jar
@@ -13,7 +17,6 @@ import time
 #########FINE DB2
 
 oggi=time.strftime('%Y-%m-%d')#data di oggi
-oggi="2017-12-04"
 
 
 bdi="bdi.txt"
@@ -33,7 +36,7 @@ cambigg=cambigg.replace('"',"")
 file.write(cambigg) 
 
 
-
+errore_bdi=0
 for riga in cambigg.splitlines():#separo lo stringone per righe
 	#print (riga)
 	try:
@@ -47,3 +50,12 @@ for riga in cambigg.splitlines():#separo lo stringone per righe
 	#else:
 	#	file.write(paese)
 file.close()
+if errore_bdi==0:
+	file = open(bdi,'rb')
+	ftp.storbinary("STOR "+bdi,file)
+	try:
+		ftp.rename(bdi,cambi_file)
+	except:
+		ftp.delete(cambi_file)
+		ftp.rename(bdi,cambi_file)
+	file.close()

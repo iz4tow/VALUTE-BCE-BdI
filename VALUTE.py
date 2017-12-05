@@ -61,7 +61,11 @@ def BdI():
 	if errore_bdi==0:
 		file = open(bdi,'rb')
 		ftp.storbinary("STOR "+bdi,file)
-		ftp.rename(bdi,cambi_file)
+		try:
+			ftp.rename(bdi,cambi_file)
+		except:#se esiste già cancello il vecchio
+			ftp.delete(cambi_file)
+			ftp.rename(bdi,cambi_file)
 		file.close()
 	app.showButton("Verifica disponibilità")
 	app.showButton("BdI")
@@ -106,7 +110,7 @@ def BCE():
 			quotazione,iso,inutile1,inutile2,inutile3,data,inutile4,inutile5,inutile6=riga.split(" ")
 			file.write(iso+","+iso+","+iso+","+iso+","+quotazione+","+inutile3+","+data+"\n")
 			countbce=countbce+1
-	if countbce<10:
+	if countbce<20:
 		errore_bce=1
 		app.showLabel("dispBCE") #Errore cambi
 		app.setLabelFg("dispBCE", "red")
@@ -172,7 +176,11 @@ def BCE():
 	if errore_bce==0:
 		file = open(bce,'rb')
 		ftp.storbinary("STOR bce.txt",file)
-		ftp.rename(bdi,cambi_file)
+		try:
+			ftp.rename(bce,cambi_file)
+		except:#se esiste già cancello il vecchio
+			ftp.delete(cambi_file)
+			ftp.rename(bce,cambi_file)
 		file.close()
 	app.showButton("Verifica disponibilità")
 	app.showButton("BdI")
@@ -225,7 +233,7 @@ def disp():
 		if oggi in riga: #prendo solo le righe con la data di oggi
 			quotazione,iso,inutile1,inutile2,inutile3,data,inutile4,inutile5,inutile6=riga.split(" ")
 			countbce=countbce+1
-	if countbce<10:
+	if countbce<20:
 		app.showLabel("dispBCE") #Errore cambi
 		app.setLabelFg("dispBCE", "red")
 		app.setLabel("dispBCE","Cambi non disponibili su Banca Centrale Europea")

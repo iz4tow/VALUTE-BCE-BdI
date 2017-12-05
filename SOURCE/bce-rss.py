@@ -26,11 +26,16 @@ except:
 
 	
 file.write("Paese,Valuta,Codice ISO,Codice UIC,Quotazione,Convenzione di cambio, Data di riferimento (CET)\n")
+countbce=0
 for riga in cambi.splitlines(): #separo lo stringone per riga
 	if oggi in riga: #prendo solo le righe con la data di oggi
 		quotazione,iso,inutile1,inutile2,inutile3,data,inutile4,inutile5,inutile6=riga.split(" ")
 		file.write(iso+","+iso+","+iso+","+iso+","+quotazione+","+inutile3+","+data+"\n")
+		countbce=countbce+1
 
+if countbce<20:
+	errore_bce=1
+	print ("CAMBI BCE NON DISPONIBILI")
 		
 		
 		
@@ -84,7 +89,19 @@ if data_twd==oggi: #CONTROLLO SE ESISTONO CAMBI CON DATA OGGI
 			count_twd=count_twd+1
 else:
 	print ("CAMBIO TWD NON DISPONIBILE")
+	errore_bce=2
 if count_twd!=1:
-	print ("CAMBIO TWD IN ERRORE")	
-
+	print ("CAMBIO TWD IN ERRORE")
+	errore_bce=3
 file.close()	
+
+
+if errore_bce==0:
+	file = open(bce,'rb')
+	ftp.storbinary("STOR bce.txt",file)
+	try:
+		ftp.rename(bce,cambi_file)
+	except:#se esiste già cancello il vecchio
+		ftp.delete(cambi_file)
+		ftp.rename(bce,cambi_file)
+	file.close()
