@@ -52,6 +52,7 @@ for riga in cambigg.splitlines():#separo lo stringone per righe
 file.close()
 if errore_bdi==0:
 	file = open(bdi,'rb')
+	ftp.cwd("ribasece")
 	ftp.storbinary("STOR "+bdi,file)
 	try:
 		ftp.rename(bdi,cambi_file)

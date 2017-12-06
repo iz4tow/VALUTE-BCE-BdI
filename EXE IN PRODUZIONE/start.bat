@@ -45,11 +45,11 @@ rem echo **************************************************************** >> ERR
 echo. >> ERRORE.TXT
 echo. >> ERRORE.TXT
 echo "CONTROLLO ZAMBIA, UNGHERIA, TAIWAN" >> ERRORE.TXT
-findstr /m "ZAMBIA" cambigg.csv
+findstr /m "ZAMBIA" bdi.txt
 if %ERRORLEVEL% NEQ 0 goto :errore_zambia_bdi
-findstr /m "UNGHERIA" cambigg.csv
+findstr /m "UNGHERIA" bdi.txt
 if %ERRORLEVEL% NEQ 0 goto :errore_zambia_bdi
-findstr /m "TAIWAN" cambigg.csv
+findstr /m "TAIWAN" bdi.txt
 if %ERRORLEVEL% NEQ 0 goto :errore_zambia_bdi
 echo "NESSUNA DISCORDANZA RILEVATA" >> ERRORE.TXT
 copy "ERRORE.TXT" "LOG\LOG_%data%_%ora%.TXT"

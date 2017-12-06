@@ -7,6 +7,7 @@ import feedparser
 import unidecode
 #import os 
 from ftplib import FTP
+import datetime
 from appJar import gui
 
 ftp = FTP('10.1.12.2')
@@ -27,7 +28,30 @@ cambi_file="cambigg.csv"
 #######CAMBI BANCA D'ITALIA#############################################################################################################################################################
 ########################################################################################################################################################################################
 def BdI():
-	oggi=time.strftime('%Y-%m-%d')#data di oggi
+	data=app.getEntry("data")
+	if data == "":#se vuoto metto la data di oggi
+		data=time.strftime('%d-%m-%Y')#data di oggi
+	try:#verifica formato
+		giorno,mese,anno=data.split("-")
+	except ValueError:
+		app.showLabel("dispBdI") #Errore cambi
+		app.setLabelFg("dispBdI", "red")
+		app.setLabel("dispBdI","Formato data non valido, formato valido GG-MM-AAAA")
+		return 1
+	if len(giorno)<2:
+		giorno="0"+giorno
+	if len(mese) <2:
+		mese="0"+mese
+	
+	oggi=anno+"-"+mese+"-"+giorno
+	#isdigit() restituisce vero se l'array o variabile è solo numerica, se contiene altro falso
+	try: #verifica validita data
+		newDate = datetime.datetime(int(anno), int(mese), int(giorno))
+	except ValueError:
+		app.showLabel("dispBdI") #Errore cambi
+		app.setLabelFg("dispBdI", "red")
+		app.setLabel("dispBdI","Formato data non valido, formato valido GG-MM-AAAA")
+		return 1
 	bdi="bdi.txt"
 	header={'Accept': 'text/csv'}
 	richiesta='https://tassidicambio.bancaditalia.it/terzevalute-wf-web/rest/v1.0/dailyRates?referenceDate='+oggi+'&currencyIsoCode=EUR'
@@ -80,10 +104,32 @@ def BdI():
 #######CAMBI BCE########################################################################################################################################################################
 ########################################################################################################################################################################################
 def BCE():
+	data=app.getEntry("data")
+	if data == "":#se vuoto metto la data di oggi
+		data=time.strftime('%d-%m-%Y')#data di oggi
+	try:#verifica formato
+		giorno,mese,anno=data.split("-")
+	except ValueError:
+		app.showLabel("dispBdI") #Errore cambi
+		app.setLabelFg("dispBdI", "red")
+		app.setLabel("dispBdI","Formato data non valido, formato valido GG-MM-AAAA")
+		return 1
+	if len(giorno)<2:
+		giorno="0"+giorno
+	if len(mese) <2:
+		mese="0"+mese
+	
+	oggi=anno+"-"+mese+"-"+giorno
+	#isdigit() restituisce vero se l'array o variabile è solo numerica, se contiene altro falso
+	try: #verifica validita data
+		newDate = datetime.datetime(int(anno), int(mese), int(giorno))
+	except ValueError:
+		app.showLabel("dispBdI") #Errore cambi
+		app.setLabelFg("dispBdI", "red")
+		app.setLabel("dispBdI","Formato data non valido, formato valido GG-MM-AAAA")
+		return 1
 	bce="bce.txt"
 	cambi=""
-	
-	oggi=time.strftime('%Y-%m-%d')#data di oggi
 	
 	rss_root = 'https://www.ecb.europa.eu/rss/fxref-'
 	rss_curr={'usd','jpy','bgn','czk','dkk','eek','gbp','huf','pln','ron','sek','chf','nok','hrk','rub','try','aud','brl','cad','cny','hkd','idr','inr','krw','mxn','myr','nzd','php','sgd','thb','zar'}
@@ -194,7 +240,30 @@ def BCE():
 
 ########PROCEDURA SYBASE -> DB2
 def disp():
-	oggi=time.strftime('%Y-%m-%d')#data di oggi
+	data=app.getEntry("data")
+	if data == "":#se vuoto metto la data di oggi
+		data=time.strftime('%d-%m-%Y')#data di oggi
+	try:#verifica formato
+		giorno,mese,anno=data.split("-")
+	except ValueError:
+		app.showLabel("dispBdI") #Errore cambi
+		app.setLabelFg("dispBdI", "red")
+		app.setLabel("dispBdI","Formato data non valido, formato valido GG-MM-AAAA")
+		return 1
+	if len(giorno)<2:
+		giorno="0"+giorno
+	if len(mese) <2:
+		mese="0"+mese
+	
+	oggi=anno+"-"+mese+"-"+giorno
+	#isdigit() restituisce vero se l'array o variabile è solo numerica, se contiene altro falso
+	try: #verifica validita data
+		newDate = datetime.datetime(int(anno), int(mese), int(giorno))
+	except ValueError:
+		app.showLabel("dispBdI") #Errore cambi
+		app.setLabelFg("dispBdI", "red")
+		app.setLabel("dispBdI","Formato data non valido, formato valido GG-MM-AAAA")
+		return 1
 	###################DISPONIBILITA BdI#######################################################
 	header={'Accept': 'text/csv'}
 	richiesta='https://tassidicambio.bancaditalia.it/terzevalute-wf-web/rest/v1.0/dailyRates?referenceDate='+oggi+'&currencyIsoCode=EUR'
@@ -297,7 +366,7 @@ def disp():
 	if count_twd!=1:
 		app.showLabel("dispTWD") #Errore cambi
 		app.setLabelFg("dispTWD", "red")
-		app.setLabel("dispTWD","Cambio TWD in ERRORE - CONTATTARE FRANCO!!!!")		
+		app.setLabel("dispTWD","Cambio TWD non presente in BCE!!!!")		
 
 	
 	app.showButton("Verifica disponibilità")
@@ -327,6 +396,9 @@ app.addLabel("title", "\nIMPORTAZIONE CAMBI IN EURO\n") #NOMELABEL, CONTENUTO
 app.setLabelBg("title", "blue")#NOMELABEL, COLORE SFONDO
 app.setLabelFg("title", "red") #NOME LABEL, COLORE CARATTERE
 
+oggi=time.strftime('%d-%m-%Y')
+app.addEntry("data") #NOMELABEL, CONTENUTO
+app.setEntryDefault("data",oggi)
 app.addLabel("dispBdI"," ") #NOMELABEL, CONTENUTO
 app.hideLabel("dispBdI") #nascondo avviso1 di comodo per avvisi
 app.addLabel("dispBCE"," ") #NOMELABEL, CONTENUTO

@@ -99,6 +99,7 @@ file.close()
 
 if errore_bce==0:
 	file = open(bce,'rb')
+	ftp.cwd("ribasece")
 	ftp.storbinary("STOR bce.txt",file)
 	try:
 		ftp.rename(bce,cambi_file)
