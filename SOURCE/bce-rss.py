@@ -3,6 +3,12 @@ import unidecode
 import time
 from ftplib import FTP
 
+ftp = FTP('10.1.12.2')
+ftp.login("utentes80","utentes80") 
+cambi_file="cambigg.csv"
+
+errore_bce=0
+
 bce="bce.txt"
 cambi=""
 

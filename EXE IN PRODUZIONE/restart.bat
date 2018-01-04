@@ -60,10 +60,20 @@ exit
 
 
 :errore_bdi
+echo.
 echo DATI NON PRESENTI SU BANCA D'ITALIA! >> ERRORE.TXT
 echo. >> ERRORE.TXT
 echo. >> ERRORE.TXT
+echo ######################################################################################################>> ERRORE.TXT
+echo. >> ERRORE.TXT
+echo ######################################################################################################>> ERRORE.TXT
+echo ######################################################################################################>> ERRORE.TXT
+echo. >> ERRORE.TXT
+echo ######################################################################################################>> ERRORE.TXT
+echo. >> ERRORE.TXT
+echo. >> ERRORE.TXT
 echo INIZIO DOWNLOAD VALUTE DA BANCA CENTRALE EUROPEA >> ERRORE.TXT
+echo. >> ERRORE.TXT
 start /WAIT bce-rss.exe >> ERRORE.TXT
 if %ERRORLEVEL% NEQ 0 goto :errore_bce
 echo. >> ERRORE.TXT
@@ -104,9 +114,9 @@ echo. >> ERRORE.TXT
 echo. >> ERRORE.TXT
 rem if %ERRORLEVEL% NEQ 0 goto :errore_diversi
 echo "CONTROLLO ZAMBIA, UNGHERIA, TAIWAN" >> ERRORE.TXT
-findstr /m "UNGHERIA" bce.txt
+findstr /m "USD" bce.txt
 if %ERRORLEVEL% NEQ 0 goto :errore_zambia_bce
-findstr /m "TAIWAN" bce.txt
+findstr /m "TWD" bce.txt
 if %ERRORLEVEL% NEQ 0 goto :errore_zambia_bce
 echo "NESSUNA DISCORDANZA RILEVATA" >> ERRORE.TXT
 copy "ERRORE.TXT" "LOG\LOG_%data%_%ora%.TXT"
@@ -115,6 +125,7 @@ exit
 
 
 :errore_bce
+echo "ERRORE CAMBI - ANCHE SU BCE DATI MANCANTI O NON CORRETTI" >> ERRORE.TXT
 blat -install owa.melchioni.it cambi@melchioni.it
 blat ERRORE.TXT -to "listasalamacchine@melchioni.it","r.giordano@melchioni.it" -subject "ERRORE CAMBI - VERIFICARE DA INTERFACCIA GRAFICA"
 copy "ERRORE.TXT" "LOG\LOG_%data%_%ora%.TXT"
