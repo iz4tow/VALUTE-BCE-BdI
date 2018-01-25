@@ -3,6 +3,10 @@ import requests
 #import jpype
 import time
 from ftplib import FTP
+import sqlite3
+import sys
+
+
 
 ftp = FTP('10.1.12.2')
 ftp.login("utentes80","utentes80") 
@@ -17,6 +21,129 @@ cambi_file="cambigg.csv"
 #########FINE DB2
 
 oggi=time.strftime('%Y-%m-%d')#data di oggi
+oggi='2018-01-23'
+
+
+
+################################################################################################
+################################FUNZIONE VERIFICA CAMBI#########################################
+################################################################################################
+
+def verifica_cambi():
+	file = open(bdi,"r")
+	###########CONNESSIONE SQLITE
+	conn = sqlite3.connect('valute.db')
+	curs = conn.cursor()
+	###########FINE SQLITE
+	curs.execute("SELECT esecuzione,errore FROM applicazione")
+	rows=curs.fetchall()
+	if len(rows)>0:#VERIFICA TABELLA DEGLI ERRORI
+		errore_bdi=2
+		print ("VERIFICARE LA TABELLA applicazione")
+		sys.exit(errore_bdi)
+	try:#PREPARO LA TABELLA VALUTE PER L'IMPORTAZIONE ELIMINANDO EVENTUALI RESIDUATI
+		curs.execute("DELETE FROM VALUTE")
+		curs.execute("commit")
+	except:
+		print ("IMPOSSIBILE ACCEDERE A TABELLA VALUTE")
+		errore_bdi=99
+		sys.exit(errore_bdi)
+	try:
+		curs.execute("INSERT INTO applicazione (esecuzione,errore) VALUES (1,0)")
+		curs.execute("commit")
+	except:
+		print ("IMPOSSIBILE ACCEDERE A TABELLA APPLICAZIONE")
+		errore_bdi=99
+		sys.exit(errore_bdi)
+	
+	for riga in cambigg.splitlines():#SCRIVO SUL DATABASE I CAMBI DI OGGI
+		paese,valuta,iso,uic,quotazione,convenzione,data=riga.split(",")
+		convenzione=convenzione.replace("'","")
+		try:#INSERIMENTO VALUTA
+			curs.execute("INSERT INTO VALUTE (paese,valuta,iso,uic,quotazione,convenzione,data) VALUES ('"+paese+"','"+valuta+"','"+iso+"','"+uic+"','"+quotazione+"','"+convenzione+"','"+data+"')")
+			curs.execute("commit")
+		except:
+			print ("ERRORE INSERIMENTO IN TABELLA VALUTE")
+			errore_bdi=5
+			sys.exit(errore_bdi)
+
+
+##############CONTROLLO DATE!!!
+	try:#SELEZIONO DALLE TABELLE LE DATE
+		curs.execute("SELECT data FROM VALUTE")
+		rows=curs.fetchall()
+		data=rows[3][0]
+		curs.execute("SELECT data FROM VALUTE_IERI")
+		rows=curs.fetchall()
+		data_ieri=rows[3][0]
+	except:
+		print ("ERRORE CONFRONTO DATE - IMPOSSIBILE LEGGERE DATI")
+		data_ieri='123stella'
+
+	if data==data_ieri:#CONFRONTO
+		print ("ERRORE CONFRONTO DATE - DATA IDENTICA"+data+data_ieri)
+		errore_bdi=9
+		sys.exit(errore_bdi)
+##############FINE CONTROLLO DATE!!!
+
+##############CONTROLLO SCOSTAMENTO PERCENTUALE
+	curs.execute("SELECT iso,quotazione FROM VALUTE")
+	riga_valuta=curs.fetchall()
+	for valuta in riga_valuta:
+		iso=valuta[0]
+		quotazione=valuta[1]
+		curs.execute("SELECT quotazione FROM VALUTE_IERI WHERE iso='"+iso+"'")
+		riga_valuta_ieri=curs.fetchall()
+		try:
+			quotazione_ieri=riga_valuta_ieri[0][0]
+			scostamento=(quotazione*100/quotazione_ieri)-100
+			if scostamento>1:
+				print ("!!!!!!!!!!!!SCOSTAMENTO DELLA VALUTA "+iso+" SUPERIORE A 1%, SCOSTAMENTO DEL "+str(scostamento)+"%")
+		except Exception as e:
+			print(e)
+			print ("SALTATO CONTROLLO PER ISO: "+iso)
+##############FINE CONTROLLO SCOSTAMENTO PERCENTUALE
+
+	try:#PROVO A SVUOTARE I CAMBI PRECEDENTI
+		curs.execute("DELETE FROM VALUTE_IERI")
+	except:
+		print ("ERRORE SVUOTAMENTO VALUTE_IERI")
+		errore_bdi=3
+		sys.exit(errore_bdi)
+	try:#SPOSTO I CAMBI NELLA TABELLA VALUTE_IERI PER SUCCESSIVI CONFRONTI
+		curs.execute("INSERT INTO VALUTE_IERI SELECT * FROM VALUTE")
+	except:
+		print("ERRORE COPIA IN VALUTE_IERI")
+		errore_bdi=4
+		sys.exit(errore_bdi)
+	
+	try:#SVUOTO LA TABELLA DI CONTROLLO APPLICAZIONE e la VALUTE 
+		curs.execute("DELETE FROM APPLICAZIONE")
+		curs.execute("DELETE FROM VALUTE")
+	except:
+		print("ERRORE IN PULIZIA TABELLA APPLICAZIONE")
+		errore_bdi=7
+		sys.exit(errore_bdi)
+	
+	try:#COMMIT FINALE
+		curs.execute("commit")
+	except:
+		print("ERRORE IN COMMIT FINALE")
+		errore_bdi=6
+		sys.exit(errore_bdi)
+
+################################################################################################
+###########################FINE FUNZIONE VERIFICA CAMBI#########################################
+################################################################################################
+
+
+
+
+
+
+
+
+
 
 
 bdi="bdi.txt"
@@ -50,6 +177,12 @@ for riga in cambigg.splitlines():#separo lo stringone per righe
 	#else:
 	#	file.write(paese)
 file.close()
+
+if errore_bdi!=0:
+	sys.exit(errore_bdi)
+	
+verifica_cambi()
+
 if errore_bdi==0:
 	file = open(bdi,'rb')
 	ftp.cwd("ribasece")
@@ -60,6 +193,17 @@ if errore_bdi==0:
 		ftp.delete(cambi_file)
 		ftp.rename(bdi,cambi_file)
 	file.close()
-	sys.exit(0)
+	#sys.exit(0)
 else:
 	sys.exit(errore_bdi)
+
+
+
+
+
+
+
+
+
+
+

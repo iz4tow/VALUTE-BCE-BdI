@@ -9,6 +9,11 @@ import unidecode
 from ftplib import FTP
 import datetime
 from appJar import gui
+import sqlite3
+import sys
+
+conn = sqlite3.connect('valute.db')
+curs = conn.cursor()
 
 ftp = FTP('10.1.12.2')
 ftp.login("utentes80","utentes80") 
@@ -367,6 +372,11 @@ def disp():
 		app.showLabel("dispTWD") #Errore cambi
 		app.setLabelFg("dispTWD", "red")
 		app.setLabel("dispTWD","Cambio TWD non presente in BCE!!!!")		
+#########################################################################FINE VERIFICA
+
+
+
+
 
 	
 	app.showButton("Verifica disponibilità")
@@ -382,7 +392,30 @@ def press(button):
 		BdI()
 	if button == "BCE":
 		BCE()
-		
+	if button == "VERIFICA ERRORE":
+		curs.execute("select esecuzione,errore from applicazione")
+		rows=curs.fetchall()
+		if len(rows)<1:
+			app.showLabel("dispBdI") #Errore cambi
+			app.setLabelFg("dispBdI", "green")
+			app.setLabel("dispBdI","Errori non rilevati")
+		else:
+			esecuzione=rows[0][0]
+			errore=rows[0][1]
+			if esecuzione!=0:
+				app.showLabel("dispBdI") #Errore cambi
+				app.setLabelFg("dispBdI", "red")
+				app.setLabel("dispBdI","Errori in esecuzione")
+			if errore!=0:
+				app.showLabel("dispBCE") #Errore cambi
+				app.setLabelFg("dispBCE", "red")
+				app.setLabel("dispBCE","Errore "+errore)
+	if button == "RIMOZIONE ERRORE":
+		curs.execute("delete from applicazione")
+		curs.execute("commit")
+		app.showLabel("dispBdI") #Errore cambi
+		app.setLabelFg("dispBdI", "green")
+		app.setLabel("dispBdI","Errori rimossi")
 
 
 
@@ -407,6 +440,6 @@ app.addLabel("dispTWD"," ") #NOMELABEL, CONTENUTO
 app.hideLabel("dispTWD") #nascondo avviso1 di comodo per avvisi
 
 
-app.addButtons(["Verifica disponibilità","BdI","BCE"], press)
+app.addButtons(["Verifica disponibilità","BdI","BCE","VERIFICA ERRORE","RIMOZIONE ERRORE"], press)
 
 app.go()

@@ -30,20 +30,23 @@ echo. >> ERRORE.TXT
 echo. >> ERRORE.TXT
 echo **************************************************************** >> ERRORE.TXT
 echo **************************************************************** >> ERRORE.TXT
-rem echo CONTENUTO DEL FILE RICOPIATO >> ERRORE.TXT
-rem echo **************************************************************** >> ERRORE.TXT
-rem echo. >> ERRORE.TXT
-rem echo. >> ERRORE.TXT
-rem type D:\FTP-da-s80\dati\ribasece\cambigg.csv >> ERRORE.TXT
-rem echo. >> ERRORE.TXT
-rem echo. >> ERRORE.TXT
-rem echo **************************************************************** >> ERRORE.TXT
-rem echo **************************************************************** >> ERRORE.TXT
-rem echo "FINE DEL FILE RICOPIATO" >> ERRORE.TXT
-rem echo **************************************************************** >> ERRORE.TXT
-rem echo **************************************************************** >> ERRORE.TXT
+echo CONTENUTO DEL FILE RICOPIATO >> ERRORE.TXT
+echo **************************************************************** >> ERRORE.TXT
 echo. >> ERRORE.TXT
 echo. >> ERRORE.TXT
+type D:\FTP-da-s80\dati\ribasece\cambigg.csv >> ERRORE.TXT
+echo. >> ERRORE.TXT
+echo. >> ERRORE.TXT
+echo **************************************************************** >> ERRORE.TXT
+echo **************************************************************** >> ERRORE.TXT
+echo "FINE DEL FILE RICOPIATO" >> ERRORE.TXT
+echo **************************************************************** >> ERRORE.TXT
+echo **************************************************************** >> ERRORE.TXT
+echo. >> ERRORE.TXT
+echo. >> ERRORE.TXT
+echo COMPARAZIONE DEI FILES >> ERRORE.TXT
+fc bdi.txt D:\FTP-da-s80\dati\ribasece\cambigg.csv
+if %ERRORLEVEL% NEQ 0 goto :errore_diversi
 echo "CONTROLLO ZAMBIA, UNGHERIA, TAIWAN" >> ERRORE.TXT
 findstr /m "ZAMBIA" bdi.txt
 if %ERRORLEVEL% NEQ 0 goto :errore_zambia_bdi
@@ -62,7 +65,7 @@ exit
 :errore_bdi
 SchTasks /Create /TN "VALUTE_TEMP" /XML VALUTE.xml >> ERRORE.TXT
 blat -install owa.melchioni.it cambi@melchioni.it
-blat ERRORE.TXT -to listasalamacchine@melchioni.it -subject "CAMBI PIANIFICATI ALLE 17.00 PER SECONDO TENTATIVO"
+blat ERRORE.TXT -to listasalamacchine@melchioni.it -subject "CAMBI PIANIFICATI ALLE 19.00 PER SECONDO TENTATIVO"
 copy "ERRORE.TXT" "LOG\LOG_%data%_%ora%.TXT"
 echo Y | del ERRORE.TXT
 exit
@@ -73,5 +76,10 @@ exit
 echo FILE INCOMPLETO!!! >> ERRORE.TXT
 goto errore_bdi
 
+:errore_diversi
+cp bdi.txt D:\FTP-da-s80\dati\ribasece\cambigg.csv
+blat -install owa.melchioni.it cambi@melchioni.it
+blat ERRORE.TXT -to listasalamacchine@melchioni.it -subject "CONTROLLARE FILE IN ribasece PER ULTERIORE VERIFICA!"
+exit
 
 
