@@ -5,7 +5,11 @@ import time
 from ftplib import FTP
 import sqlite3
 import sys
-
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 
 ftp = FTP('10.1.12.2')
@@ -21,7 +25,7 @@ cambi_file="cambigg.csv"
 #########FINE DB2
 
 oggi=time.strftime('%Y-%m-%d')#data di oggi
-oggi='2018-01-23'
+#oggi='2018-01-24'
 
 
 
@@ -61,6 +65,11 @@ def verifica_cambi():
 		convenzione=convenzione.replace("'","")
 		try:#INSERIMENTO VALUTA
 			curs.execute("INSERT INTO VALUTE (paese,valuta,iso,uic,quotazione,convenzione,data) VALUES ('"+paese+"','"+valuta+"','"+iso+"','"+uic+"','"+quotazione+"','"+convenzione+"','"+data+"')")
+		except:
+			print ("ERRORE INSERIMENTO IN TABELLA VALUTE")
+			errore_bdi=5
+			sys.exit(errore_bdi)
+		try:
 			curs.execute("commit")
 		except:
 			print ("ERRORE INSERIMENTO IN TABELLA VALUTE")
@@ -69,6 +78,7 @@ def verifica_cambi():
 
 
 ##############CONTROLLO DATE!!!
+	variazione=""
 	try:#SELEZIONO DALLE TABELLE LE DATE
 		curs.execute("SELECT data FROM VALUTE")
 		rows=curs.fetchall()
@@ -96,12 +106,13 @@ def verifica_cambi():
 		riga_valuta_ieri=curs.fetchall()
 		try:
 			quotazione_ieri=riga_valuta_ieri[0][0]
-			scostamento=(quotazione*100/quotazione_ieri)-100
-			if scostamento>1:
-				print ("!!!!!!!!!!!!SCOSTAMENTO DELLA VALUTA "+iso+" SUPERIORE A 1%, SCOSTAMENTO DEL "+str(scostamento)+"%")
+			scostamento=(quotazione_ieri*100/quotazione)-100
+			if scostamento>2 or scostamento<-2:
+				print ("SCOSTAMENTO DELLA VALUTA "+iso+" SUPERIORE A 1%, SCOSTAMENTO DEL "+str(scostamento)+"%")
+				variazione=variazione+"SCOSTAMENTO DELLA VALUTA "+iso+" SUPERIORE A 1%, SCOSTAMENTO DEL "+str(scostamento)+"%<br>"
 		except Exception as e:
 			print(e)
-			print ("SALTATO CONTROLLO PER ISO: "+iso)
+			variazione=variazione+"SALTATO CONTROLLO PER ISO: "+iso+"<br>"
 ##############FINE CONTROLLO SCOSTAMENTO PERCENTUALE
 
 	try:#PROVO A SVUOTARE I CAMBI PRECEDENTI
@@ -131,6 +142,21 @@ def verifica_cambi():
 		print("ERRORE IN COMMIT FINALE")
 		errore_bdi=6
 		sys.exit(errore_bdi)
+	if variazione!="":#se c'è stato scostamento > 1% INVIA LA MAIL A ME
+		mail_variazioni = MIMEMultipart()
+		mail_variazioni['From'] = "inviofatture@melchioni.it"
+		mail_variazioni['To'] = "f.avino@melchioni.it"
+		mail_variazioni['Subject'] = "VERIFICARE VARIAZIONE STATISTICA CAMBI"
+		corpo=variazione
+
+		mail_variazioni.attach(MIMEText(corpo, 'html'))
+		server = smtplib.SMTP('owa.melchioni.it', 25)
+		server.starttls()
+		server.login("inviofatture@melchionispa", "invio123")
+		mail_variazionior = mail_variazioni.as_string()
+		server.sendmail("inviofatture@melchioni.it","f.avino@melchioni.it", mail_variazionior)
+		server.quit()
+		
 
 ################################################################################################
 ###########################FINE FUNZIONE VERIFICA CAMBI#########################################
@@ -193,7 +219,7 @@ if errore_bdi==0:
 		ftp.delete(cambi_file)
 		ftp.rename(bdi,cambi_file)
 	file.close()
-	#sys.exit(0)
+	sys.exit(0)
 else:
 	sys.exit(errore_bdi)
 
