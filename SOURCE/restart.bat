@@ -4,7 +4,7 @@ set data=%date:~6,4%%date:~3,2%%date:~0,2%
 set ora=%time:~0,2%%time:~3,2%%time:~6,2%
 echo %data% %ora% > ERRORE.TXT
 echo INIZIO DOWNLOAD VALUTE DA BANCA D'ITALIA >> ERRORE.TXT
-start /WAIT bdi-csv.exe >> ERRORE.TXT
+bdi-csv.exe >> ERRORE.TXT
 if %ERRORLEVEL% NEQ 0 goto :errore_bdi
 set data=%date:~6,4%%date:~3,2%%date:~0,2%
 set ora=%time:~0,2%%time:~3,2%%time:~6,2%
@@ -82,7 +82,7 @@ echo. >> ERRORE.TXT
 echo. >> ERRORE.TXT
 echo INIZIO DOWNLOAD VALUTE DA BANCA CENTRALE EUROPEA >> ERRORE.TXT
 echo. >> ERRORE.TXT
-start /WAIT bce-rss.exe >> ERRORE.TXT
+bce-rss.exe >> ERRORE.TXT
 if %ERRORLEVEL% NEQ 0 goto :errore_bce
 echo. >> ERRORE.TXT
 echo. >> ERRORE.TXT

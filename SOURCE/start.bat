@@ -4,7 +4,7 @@ set data=%date:~6,4%%date:~3,2%%date:~0,2%
 set ora=%time:~0,2%%time:~3,2%%time:~6,2%
 echo %data% %ora% > ERRORE.TXT
 echo INIZIO DOWNLOAD VALUTE DA BANCA D'ITALIA >> ERRORE.TXT
-start /WAIT bdi-csv.exe >> ERRORE.TXT
+bdi-csv.exe >> ERRORE.TXT
 if %ERRORLEVEL% NEQ 0 goto :errore_bdi
 set data=%date:~6,4%%date:~3,2%%date:~0,2%
 set ora=%time:~0,2%%time:~3,2%%time:~6,2%
@@ -65,7 +65,7 @@ exit
 :errore_bdi
 SchTasks /Create /TN "VALUTE_TEMP" /XML VALUTE.xml >> ERRORE.TXT
 blat -install owa.melchioni.it cambi@melchioni.it
-blat ERRORE.TXT -to listasalamacchine@melchioni.it -subject "CAMBI PIANIFICATI ALLE 19.00 PER SECONDO TENTATIVO"
+blat ERRORE.TXT -to listasalamacchine@melchioni.it -subject "ERRORE CAMBI ORE 17.15"
 copy "ERRORE.TXT" "LOG\LOG_%data%_%ora%.TXT"
 echo Y | del ERRORE.TXT
 exit

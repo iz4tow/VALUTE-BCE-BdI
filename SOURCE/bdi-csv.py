@@ -12,8 +12,6 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 
-ftp = FTP('10.1.12.2')
-ftp.login("utentes80","utentes80") 
 cambi_file="cambigg.csv"
 #CONNESSIONE A DB2
 #jar = 'db2jcc4.jar' # location of the jdbc driver jar
@@ -210,18 +208,29 @@ if errore_bdi!=0:
 verifica_cambi()
 
 if errore_bdi==0:
-	file = open(bdi,'rb')
-	ftp.cwd("ribasece")
-	ftp.storbinary("STOR "+bdi,file)
+	try:
+		ftp = FTP('10.1.12.2')
+		ftp.login("utentes80","utentes80") 
+		file = open(bdi,'rb')
+	except:
+		errore_bdi=20
+	try:
+		ftp.cwd("ribasece")
+	except:
+		errore_bdi=20
+	try:
+		ftp.storbinary("STOR "+bdi,file)
+	except:
+		errore_bdi=20
 	try:
 		ftp.rename(bdi,cambi_file)
 	except:
 		ftp.delete(cambi_file)
 		ftp.rename(bdi,cambi_file)
 	file.close()
-	sys.exit(0)
-else:
-	sys.exit(errore_bdi)
+
+
+sys.exit(errore_bdi)
 
 
 
